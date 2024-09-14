@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { dataSource } from "./database";
+import { connectDataSource, dataSource, disconnectDataSource } from "./database";
 import { executeWithRetries } from "./utils";
 import { ALLOWED_IND_DEPARTMENTS, ALLOWED_DUB_DEPARTMENTS,ASSETS } from "./constants";
 
@@ -27,7 +27,8 @@ async function fetchBatch(offset:number, batchSize:number) {
         ORDER BY assets_pre_check_timestamp ASC
         LIMIT ${batchSize} OFFSET ${offset}
     `;
-
+    console.log("fetching the data")
+    
     return await executeWithRetries(() => dataSource.query(query, [ALLOWED_DEPARTMENTS]), 3, 1000);
 }
 
@@ -77,6 +78,7 @@ export async function assetsPreCheck() {
     
     if (apcSwitch && apcSwitch.trim() === '1') {
         console.log("Starting Assets Pre Check every 4 hours");
+        await connectDataSource()
 
         const batchSize = 1000;
         let offset = 0;
@@ -88,12 +90,11 @@ export async function assetsPreCheck() {
 
             try {
                 const result: any = await fetchBatch(offset, batchSize);
-
                 if (result.rows.length > 0) {
                     console.log(`Processing ${result.rows.length} products`);
 
                     for (const product of result.rows) {
-                        const { lot_id, id, certificate_url, certificate_number } = product;
+                        const { lot_id, id,  certificate_number } = product;
                         const updates: any = [];
                         let updated = false;
 
@@ -153,7 +154,7 @@ export async function assetsPreCheck() {
                 moreRows = false;
             }
         }
-
+        await disconnectDataSource()
         console.log(`Assets Pre Check completed. Total updated stones: ${updateCount}`);
     } else {
         console.log(`Assets Pre Check is off.`);

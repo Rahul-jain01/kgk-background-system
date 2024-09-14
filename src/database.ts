@@ -1,12 +1,32 @@
 import { Client } from 'pg';
-import { executeWithRetries } from "./utils";
+import dotenv from 'dotenv';
 
+// Load environment variables from .env file
+dotenv.config();
 
 // PostgreSQL client
-const client = new Client({
-    connectionString: process.env.DATABASE_URL + '?application_name=medusa_child',
+export const dataSource = new Client({
+    connectionString: process.env.DATABASE_URL,
 });
 
-const RETRY_DELAY = 3000; // milliseconds
 
-export { client as dataSource };
+// Connect to the PostgreSQL database
+export async function connectDataSource() {
+    try {
+        console.log(process.env.DATABASE_URL)
+        await dataSource.connect();
+        console.log('Connected to the database');
+    } catch (err) {
+        console.error('Error connecting to the database:', err);
+    }
+}
+
+// Disconnect the DataSource
+export async function disconnectDataSource() {
+    try {
+        await dataSource.end();
+        console.log('Disconnected from the database');
+    } catch (err) {
+        console.error('Error disconnecting from the database:', err);
+    }
+}
