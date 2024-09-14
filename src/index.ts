@@ -7,7 +7,7 @@ dotenv.config();
 
     
 // Schedule a assets pre check every hour
-cron.schedule('*/30 * * * *',async () => {
+cron.schedule('*0 */4 * * *',async () => {
 
     // Get the current time in UTC
     const now = new Date();
