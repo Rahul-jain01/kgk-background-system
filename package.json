@@ -1,0 +1,11 @@
+{
+  "name": "kgk-background-system",
+  "version": "1.0.0",
+  "description": "The kgk system to run the cron jobs in the background to reduce the server load",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kgk Group",
+  "license": "ISC"
+}
